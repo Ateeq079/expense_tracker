@@ -10,6 +10,7 @@ import 'transaction_type.dart';
 class ExpenseTransaction {
   const ExpenseTransaction({
     required this.id,
+    required this.bookId,
     required this.title,
     required this.amount,
     required this.type,
@@ -19,6 +20,7 @@ class ExpenseTransaction {
   });
 
   final String id;
+  final String bookId;
   final String title;
   final double amount;
   final TransactionType type;
@@ -33,6 +35,7 @@ class ExpenseTransaction {
 
   ExpenseTransaction copyWith({
     String? id,
+    String? bookId,
     String? title,
     double? amount,
     TransactionType? type,
@@ -42,6 +45,7 @@ class ExpenseTransaction {
   }) {
     return ExpenseTransaction(
       id: id ?? this.id,
+      bookId: bookId ?? this.bookId,
       title: title ?? this.title,
       amount: amount ?? this.amount,
       type: type ?? this.type,
@@ -54,6 +58,7 @@ class ExpenseTransaction {
   Map<String, Object?> toMap() {
     return {
       'id': id,
+      'book_id': bookId,
       'title': title,
       'amount': amount,
       'type': type.storageValue,
@@ -66,6 +71,7 @@ class ExpenseTransaction {
   factory ExpenseTransaction.fromMap(Map<String, Object?> map) {
     return ExpenseTransaction(
       id: map['id'] as String,
+      bookId: map['book_id'] as String? ?? 'default_book_id',
       title: map['title'] as String? ?? '',
       amount: (map['amount'] as num?)?.toDouble() ?? 0,
       type: TransactionType.fromStorage(map['type'] as String? ?? 'expense'),
@@ -79,6 +85,7 @@ class ExpenseTransaction {
   bool operator ==(Object other) =>
       other is ExpenseTransaction &&
       other.id == id &&
+      other.bookId == bookId &&
       other.title == title &&
       other.amount == amount &&
       other.type == type &&
@@ -88,5 +95,5 @@ class ExpenseTransaction {
 
   @override
   int get hashCode =>
-      Object.hash(id, title, amount, type, categoryId, date, note);
+      Object.hash(id, bookId, title, amount, type, categoryId, date, note);
 }

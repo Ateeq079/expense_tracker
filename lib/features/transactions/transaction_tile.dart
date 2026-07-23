@@ -38,12 +38,19 @@ class TransactionTile extends ConsumerWidget {
         overflow: TextOverflow.ellipsis,
       ),
       subtitle: Text(category.label),
-      trailing: Text(
-        money.formatSigned(transaction.signedAmount),
-        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: amountColor,
-              fontWeight: FontWeight.w600,
-            ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            money.formatSigned(transaction.signedAmount),
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: amountColor,
+                  fontWeight: FontWeight.w600,
+                ),
+          ),
+          const SizedBox(width: 8),
+          const Icon(Icons.edit_outlined, size: 20, color: Colors.grey),
+        ],
       ),
     );
   }

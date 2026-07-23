@@ -10,6 +10,7 @@ void main() {
     test('round-trips through toMap/fromMap', () {
       final tx = ExpenseTransaction(
         id: 'abc',
+        bookId: 'default_book_id',
         title: 'Lunch',
         amount: 12.5,
         type: TransactionType.expense,
@@ -24,6 +25,7 @@ void main() {
     test('signedAmount is negative for expense, positive for income', () {
       final expense = ExpenseTransaction(
         id: '1',
+        bookId: 'default_book_id',
         title: '',
         amount: 10,
         type: TransactionType.expense,
@@ -71,6 +73,7 @@ void main() {
       final csv = const CsvExportService().buildCsv([
         ExpenseTransaction(
           id: '1',
+          bookId: 'default_book_id',
           title: 'Coffee',
           amount: 3.5,
           type: TransactionType.expense,

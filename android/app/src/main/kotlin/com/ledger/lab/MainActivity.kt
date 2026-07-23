@@ -1,4 +1,4 @@
-package com.ateeq.expensetracker
+package com.ledger.lab
 
 import io.flutter.embedding.android.FlutterActivity
 

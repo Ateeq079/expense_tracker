@@ -4,11 +4,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/formatters.dart';
 import '../../data/models/expense_transaction.dart';
 import '../../state/analytics.dart';
+import '../../state/books_controller.dart';
+import '../../state/providers.dart';
 import '../../state/transactions_controller.dart';
 import '../add_edit/add_edit_transaction_screen.dart';
 import '../common/empty_state.dart';
 import '../common/period_selector.dart';
 import '../transactions/transaction_tile.dart';
+import 'book_switcher_sheet.dart';
 import 'summary_card.dart';
 
 /// Home tab: balance overview, period filter and the transaction feed.
@@ -16,12 +19,45 @@ class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
   @override
+  @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Reset period filter to "This Month" when the active book changes.
+    ref.listen(activeBookIdProvider, (previous, current) {
+      if (previous != current && previous != null) {
+        ref.read(selectedPeriodProvider.notifier).set(StatsPeriod.thisMonth);
+      }
+    });
+
     final filtered = ref.watch(filteredTransactionsProvider);
+    final activeBookId = ref.watch(activeBookIdProvider);
+    final booksAsync = ref.watch(booksControllerProvider);
+    
+    final activeBookName = booksAsync.maybeWhen(
+      data: (books) {
+        final book = books.where((b) => b.id == activeBookId).firstOrNull;
+        return book?.name ?? 'Expense Tracker';
+      },
+      orElse: () => 'Expense Tracker',
+    );
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Expense Tracker'),
+        title: GestureDetector(
+          onTap: () {
+            showModalBottomSheet(
+              context: context,
+              builder: (context) => const BookSwitcherSheet(),
+              isScrollControlled: true,
+            );
+          },
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(activeBookName),
+              const Icon(Icons.expand_more),
+            ],
+          ),
+        ),
       ),
       body: SafeArea(
         child: Column(

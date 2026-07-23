@@ -23,11 +23,24 @@ class CsvExportService {
     'Note',
   ];
 
+  static const _headersWithBook = [
+    'Book',
+    'Date',
+    'Type',
+    'Category',
+    'Title',
+    'Amount',
+    'Signed Amount',
+    'Note',
+  ];
+
   /// Serializes [transactions] (newest first) to CSV text.
-  String buildCsv(List<ExpenseTransaction> transactions) {
-    final rows = <List<Object?>>[_headers];
+  /// If [bookNames] is provided, adds a 'Book' column.
+  String buildCsv(List<ExpenseTransaction> transactions, {Map<String, String>? bookNames}) {
+    final hasBooks = bookNames != null;
+    final rows = <List<Object?>>[hasBooks ? _headersWithBook : _headers];
     for (final t in transactions) {
-      rows.add([
+      final row = [
         DateFormats.csvTimestamp.format(t.date),
         t.type.label,
         Categories.byId(t.categoryId).label,
@@ -35,7 +48,11 @@ class CsvExportService {
         t.amount.toStringAsFixed(2),
         t.signedAmount.toStringAsFixed(2),
         t.note ?? '',
-      ]);
+      ];
+      if (hasBooks) {
+        row.insert(0, bookNames[t.bookId] ?? 'Unknown');
+      }
+      rows.add(row);
     }
     // BOM so spreadsheet apps render currency symbols / unicode correctly.
     return Csv(addBom: true).encode(rows);
@@ -43,8 +60,8 @@ class CsvExportService {
 
   /// Writes the CSV to a temporary file and opens the share sheet.
   /// Returns the number of transactions exported.
-  Future<int> exportAndShare(List<ExpenseTransaction> transactions) async {
-    final csv = buildCsv(transactions);
+  Future<int> exportAndShare(List<ExpenseTransaction> transactions, {Map<String, String>? bookNames}) async {
+    final csv = buildCsv(transactions, bookNames: bookNames);
     final dir = await getTemporaryDirectory();
     final stamp = DateFormats.fileStamp.format(DateTime.now());
     final file = File(p.join(dir.path, 'expenses_$stamp.csv'));

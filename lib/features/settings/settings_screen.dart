@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/currency.dart';
+import '../../data/models/book.dart';
+import '../../data/models/expense_transaction.dart';
 import '../../services/csv_export_service.dart';
+import '../../state/books_controller.dart';
+import '../../state/providers.dart';
 import '../../state/settings_controller.dart';
 import '../../state/transactions_controller.dart';
 
@@ -43,9 +47,15 @@ class SettingsScreen extends ConsumerWidget {
             _sectionHeader(context, 'Data'),
             ListTile(
               leading: const Icon(Icons.ios_share),
-              title: const Text('Export as CSV'),
-              subtitle: const Text('Share all transactions as a spreadsheet'),
+              title: const Text('Export active book as CSV'),
+              subtitle: const Text('Share transactions from the current book'),
               onTap: () => _exportCsv(context, ref),
+            ),
+            ListTile(
+              leading: const Icon(Icons.library_books),
+              title: const Text('Export all books as CSV'),
+              subtitle: const Text('Share all transactions across all your books'),
+              onTap: () => _exportAllCsv(context, ref),
             ),
             ListTile(
               leading: Icon(Icons.delete_outline, color: theme.colorScheme.error),
@@ -170,6 +180,44 @@ class SettingsScreen extends ConsumerWidget {
     }
     try {
       await const CsvExportService().exportAndShare(transactions);
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(content: Text('Export failed: $e')),
+      );
+    }
+  }
+
+  Future<void> _exportAllCsv(BuildContext context, WidgetRef ref) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final List<Book> books = ref.read(booksControllerProvider).value ?? <Book>[];
+    if (books.isEmpty) return;
+
+    try {
+      final transactionRepo = ref.read(transactionRepositoryProvider);
+      
+      final allTransactions = <ExpenseTransaction>[];
+      final bookNames = <String, String>{};
+      
+      for (final book in books) {
+        bookNames[book.id] = book.name;
+        final txs = await transactionRepo.getAll(book.id);
+        allTransactions.addAll(txs);
+      }
+      
+      // Sort newest first across all books
+      allTransactions.sort((a, b) => b.date.compareTo(a.date));
+
+      if (allTransactions.isEmpty) {
+        messenger.showSnackBar(
+          const SnackBar(content: Text('No transactions to export')),
+        );
+        return;
+      }
+
+      await const CsvExportService().exportAndShare(
+        allTransactions, 
+        bookNames: bookNames,
+      );
     } catch (e) {
       messenger.showSnackBar(
         SnackBar(content: Text('Export failed: $e')),

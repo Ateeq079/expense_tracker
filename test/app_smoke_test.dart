@@ -16,8 +16,9 @@ class FakeTransactionRepository implements TransactionRepository {
   final List<ExpenseTransaction> _items;
 
   @override
-  Future<List<ExpenseTransaction>> getAll() async {
-    final sorted = [..._items]..sort((a, b) => b.date.compareTo(a.date));
+  Future<List<ExpenseTransaction>> getAll(String bookId) async {
+    final filtered = _items.where((t) => t.bookId == bookId).toList();
+    final sorted = [...filtered]..sort((a, b) => b.date.compareTo(a.date));
     return sorted;
   }
 
@@ -38,8 +39,8 @@ class FakeTransactionRepository implements TransactionRepository {
   }
 
   @override
-  Future<void> deleteAll() async {
-    _items.clear();
+  Future<void> deleteAll(String bookId) async {
+    _items.removeWhere((t) => t.bookId == bookId);
   }
 }
 
@@ -72,6 +73,7 @@ void main() {
     final seed = [
       ExpenseTransaction(
         id: '1',
+        bookId: 'default_book_id',
         title: 'Paycheck',
         amount: 2000,
         type: TransactionType.income,
@@ -80,6 +82,7 @@ void main() {
       ),
       ExpenseTransaction(
         id: '2',
+        bookId: 'default_book_id',
         title: 'Groceries run',
         amount: 75,
         type: TransactionType.expense,

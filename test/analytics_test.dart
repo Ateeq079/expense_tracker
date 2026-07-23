@@ -12,6 +12,7 @@ ExpenseTransaction _tx({
 }) {
   return ExpenseTransaction(
     id: id,
+    bookId: 'default_book_id',
     title: 't',
     amount: amount,
     type: type,

@@ -16,7 +16,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.ateeq.expensetracker"
+    namespace = "com.ledger.lab"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -30,7 +30,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.ateeq.expensetracker"
+        applicationId = "com.ledger.lab"
         // minSdk 23 (Android 6.0) — required by the launcher-icon config and a
         // sensible modern floor (~99% of active devices).
         minSdk = maxOf(23, flutter.minSdkVersion)

@@ -13,11 +13,13 @@ class TransactionRepository {
 
   Future<Database> get _db => _appDatabase.database;
 
-  /// All transactions, newest first.
-  Future<List<ExpenseTransaction>> getAll() async {
+  /// All transactions for a book, newest first.
+  Future<List<ExpenseTransaction>> getAll(String bookId) async {
     final db = await _db;
     final rows = await db.query(
       AppDatabase.tableTransactions,
+      where: 'book_id = ?',
+      whereArgs: [bookId],
       orderBy: 'date DESC',
     );
     return rows.map(ExpenseTransaction.fromMap).toList(growable: false);
@@ -51,8 +53,12 @@ class TransactionRepository {
     );
   }
 
-  Future<void> deleteAll() async {
+  Future<void> deleteAll(String bookId) async {
     final db = await _db;
-    await db.delete(AppDatabase.tableTransactions);
+    await db.delete(
+      AppDatabase.tableTransactions,
+      where: 'book_id = ?',
+      whereArgs: [bookId],
+    );
   }
 }

@@ -7,6 +7,7 @@ import '../../core/formatters.dart';
 import '../../data/models/category.dart';
 import '../../data/models/expense_transaction.dart';
 import '../../data/models/transaction_type.dart';
+import '../../state/providers.dart';
 import '../../state/settings_controller.dart';
 import '../../state/transactions_controller.dart';
 
@@ -101,6 +102,7 @@ class _AddEditTransactionScreenState
 
     final transaction = ExpenseTransaction(
       id: existing?.id ?? _uuid.v4(),
+      bookId: existing?.bookId ?? ref.read(activeBookIdProvider),
       title: _titleController.text.trim(),
       amount: amount,
       type: _type,
